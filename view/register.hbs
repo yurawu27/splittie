@@ -1,0 +1,30 @@
+<h2>Register</h2>
+{{#if messages.error}}
+  <div class="error">{{messages.error}}</div>
+{{/if}}
+{{#if messages.success}}
+  <div class="success">{{messages.success}}</div>
+{{/if}}
+<form method="POST" action="register">
+	<div>
+		<label for="username">Username:</label>
+		<input type="text" name="username" value="">
+	</div>
+	<div>
+		<label for="email">Email:</label> 
+		<input type="email" name="email" value="">
+	</div>
+	<div>
+		<label for="password">Password:</label> 
+		<input type="password" name="password" value="">
+	</div>
+	<div>
+		<label for="name">Name:</label>
+		<input type="text" name="name" value="">
+	</div>
+	<div>
+		<label for="phoneNumber">Phone Number:</label>
+		<input type="tel" name="phoneNumber" value="">
+	</div>
+	<div><input type="submit" value="Register"></div>
+</form>

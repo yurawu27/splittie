@@ -1,0 +1,173 @@
+<h1>Create a Bill</h1>
+<form method="POST" action="/bills/create">
+  <div>
+    <label for="title">Bill Title:</label>
+    <input type="text" id="title" name="title" placeholder="Enter bill title" required />
+  </div>
+
+  <div>
+    <label for="subtotal">Subtotal:</label>
+    <input type="number" id="subtotal" name="subtotal" step="0.01" min="0" placeholder="Subtotal amount" required />
+  </div>
+
+  <div>
+    <label for="tax">Tax (Optional):</label>
+    <input type="number" id="tax" name="tax" step="0.01" min="0" placeholder="Tax amount" />
+  </div>
+
+  <div>
+    <label for="tip">Tip (Optional):</label>
+    <input type="number" id="tip" name="tip" step="0.01" min="0" placeholder="Tip amount" />
+  </div>
+
+  <div>
+    <label for="billPayer">Bill Payer (Username):</label>
+    <input type="text" id="billPayer" name="billPayer" placeholder="Enter bill payer's username" required />
+  </div>
+
+  <div id="splitters">
+    <label>Splitters:</label>
+    <div class="splitter" data-index="0">
+      <input type="text" name="splitters[0][user]" placeholder="Username" required />
+      <div class="items">
+        <label>Items:</label>
+        <div class="item">
+          <input type="text" name="splitters[0][items][0][name]" placeholder="Item Name (Optional)" />
+          <input type="number" name="splitters[0][items][0][cost]" step="0.01" min="0" placeholder="Cost" required />
+        </div>
+        <button type="button" class="addItem">Add Item</button>
+      </div>
+      <label>
+        <input type="checkbox" name="splitters[0][paid]" value="true" /> Paid
+      </label>
+      <button type="button" class="removeSplitter">Remove Splitter</button>
+    </div>
+    <button type="button" id="addSplitter">Add Splitter</button>
+  </div>
+
+  <div>
+    <label>
+      <input type="checkbox" name="complete" /> Mark as Complete
+    </label>
+  </div>
+
+  <button type="submit">Create Bill</button>
+</form>
+
+<script>
+  document.querySelectorAll('.addItem').forEach((button) => {
+    button.addEventListener('click', (e) => {
+      const itemsDiv = e.target.closest('.items');
+      const itemCount = itemsDiv.querySelectorAll('.item').length;
+      const splitterIndex = parseInt(e.target.closest('.splitter').dataset.index, 10);
+      const newItem = document.createElement('div');
+      console.log("INDEXXXX: ", splitterIndex);
+      newItem.className = 'item';
+      newItem.innerHTML = `
+        <input
+          type="text"
+          name="splitters[${splitterIndex}][items][${itemCount}][name]"
+          placeholder="Item Name (Optional)"
+        />
+        <input
+          type="number"
+          name="splitters[${splitterIndex}][items][${itemCount}][cost]"
+          step="0.01"
+          min="0"
+          placeholder="Cost"
+          required
+        />
+      `;
+      itemsDiv.appendChild(newItem);
+
+      newItem.querySelector('.removeItem')?.addEventListener('click', (e) => {
+        e.target.parentElement.remove();
+      });
+    });
+  });
+
+  document.getElementById('addSplitter').addEventListener('click', () => {
+    console.log("ADDING SPLITTERERRRRRR");
+    const splittersDiv = document.getElementById('splitters');
+    // check if last element in splitters is a button (addSplitter)
+    const lastEleChild = splittersDiv.lastElementChild;
+    // index of the LAST splitter
+    let splitterIndex = 0;
+    if(lastEleChild.tagName.toLowerCase() === 'button'){
+      // meaning that it's first time adding a splitter, only 1 splitter ahead
+      // or splitterIndex = 0;
+      splitterIndex = parseInt(lastEleChild.previousElementSibling.dataset.index, 10);
+      console.log("FIRST SPLITTER");
+    } else{
+      splitterIndex = parseInt(lastEleChild.dataset.index, 10);
+      console.log("NOT FIRST SPLITTER");
+    }
+    const currIndex = splitterIndex + 1;
+
+    const newSplitter = document.createElement('div');
+    newSplitter.className = 'splitter';
+    newSplitter.dataset.index = currIndex;
+    console.log("IS IT ADDEDDDDDDD?");
+    newSplitter.innerHTML = `
+      <input type="text" name="splitters[${currIndex}][user]" placeholder="Username" required />
+      <div class="items">
+        <label>Items:</label>
+        <div class="item">
+          <input
+            type="text"
+            name="splitters[${currIndex}][items][0][name]"
+            placeholder="Item Name (Optional)"
+          />
+          <input
+            type="number"
+            name="splitters[${currIndex}][items][0][cost]"
+            step="0.01"
+            min="0"
+            placeholder="Cost"
+            required
+          />
+        </div>
+        <button type="button" class="addItem">Add Item</button>
+      </div>
+      <label>
+        <input type="checkbox" name="splitters[${currIndex}][paid]" value="true" /> Paid
+      </label>
+      <button type="button" class="removeSplitter">Remove Splitter</button>
+    `;
+    splittersDiv.appendChild(newSplitter);
+    
+    newSplitter.querySelector('.addItem').addEventListener('click', (e) => {
+      console.log("LET ME ADDDDDD IT");
+      const itemsDiv = e.target.closest('.items');
+      const itemCount = itemsDiv.querySelectorAll('.item').length;
+      const splitterIndex = parseInt(e.target.closest('.splitter').dataset.index, 10);
+      const newItem = document.createElement('div');
+      newItem.className = 'item';
+      newItem.innerHTML = `
+        <input
+          type="text"
+          name="splitters[${splitterIndex}][items][${itemCount}][name]"
+          placeholder="Item Name (Optional)"
+        />
+        <input
+          type="number"
+          name="splitters[${splitterIndex}][items][${itemCount}][cost]"
+          step="0.01"
+          min="0"
+          placeholder="Cost"
+          required
+        />
+      `;
+      itemsDiv.appendChild(newItem);
+
+      newItem.querySelector('.removeItem')?.addEventListener('click', (e) => {
+        e.target.parentElement.remove();
+      });
+    });
+
+    newSplitter.querySelector('.removeSplitter').addEventListener('click', (e) => {
+      e.target.parentElement.remove();
+    });
+
+  });
+</script>

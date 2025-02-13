@@ -1,0 +1,71 @@
+<h1>Your Bills</h1>
+<table>
+  <thead>
+    <tr>
+      <th>Title</th>
+      <th>Subtotal</th>
+      <th>Tax</th>
+      <th>Tip</th>
+      <th>Total</th>
+      <th>Amount You Owe</th>
+      <th>Paid</th>
+      <th>Complete</th>
+      <th>Update</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each bills}}
+    <tr>
+      <td>{{this.title}}</td>
+      <td>${{this.subtotal}}</td>
+      <td>${{this.tax}}</td>
+      <td>${{this.tip}}</td>
+      <td>${{this.total}}</td>
+      <td>
+        {{#if (eq this.billPayer._id ../loggedInUser._id)}}
+          <p>You are the bill payer :D</p>
+        {{else}}
+          {{#if this.splitters}}
+            {{#each this.splitters}}
+              {{#if (eq this.user._id ../../loggedInUser._id)}}
+                ${{this.totalOwed}}
+              {{/if}}
+            {{/each}}
+          {{else}}
+            N/A
+          {{/if}}
+        {{/if}}
+      </td>
+      <td>
+        {{#if (eq this.billPayer._id ../loggedInUser._id)}}
+          <p>No need!</p>
+        {{else}}
+          {{#if this.splitters}}
+            {{#each this.splitters}}
+              {{#if (eq this.user._id ../../loggedInUser._id)}}
+                {{#if this.paid}}Yes{{else}}No{{/if}}
+              {{/if}}
+            {{/each}}
+          {{else}}
+            N/A
+          {{/if}}
+        {{/if}}
+      </td>
+      <td>{{#if this.complete}}Yes{{else}}No{{/if}}</td>
+      <td>
+        <form action="/bills/update/{{this._id}}" method="GET">
+          <button type="submit">Update</button>
+        </form>
+      </td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+{{#if messages.success}}
+<p class="success">{{messages.success}}</p>
+{{/if}}
+
+{{#if messages.error}}
+<p class="error">{{messages.error}}</p>
+{{/if}}

@@ -1,0 +1,32 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Splittie</title>
+  <link rel="stylesheet" href="/css/styles.css" type="text/css">
+</head>
+<body>
+<div id="outer">
+<header>
+<nav>
+	<span class="home-link"><a href="/">Home</a></span>
+	<span class="login-status">
+		{{#if user}}
+		<!--<span class="success">Logged in as: {{user.username}}</span>-->
+		Logged in as: {{user.username}}
+		<a href="/bills/create">Create Bill</a>
+		<a href="/bills">All Bills</a>
+		<a href="/logout">Log Out</a>
+		{{else}}
+		<a href="/register">Register</a> or <a href="/login">Login</a>
+		{{/if}}
+	</span>
+</nav>
+</header>
+	<h1>Splittie</h1>
+
+	<div class="content">
+	{{{ body }}}
+	</div>
+</body>
+</html>

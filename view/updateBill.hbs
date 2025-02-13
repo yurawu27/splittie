@@ -1,0 +1,212 @@
+<h1>Update Bill</h1>
+<form action="/bills/update/{{bill._id}}" method="POST">
+  <div>
+    <label for="title">Bill Title:</label>
+    <input type="text" id="title" name="title" value="{{bill.title}}" required />
+  </div>
+
+  <div>
+    <label for="subtotal">Subtotal:</label>
+    <input type="number" id="subtotal" name="subtotal" step="0.01" min="0" value="{{bill.subtotal}}" required />
+  </div>
+
+  <div>
+    <label for="tax">Tax:</label>
+    <input type="number" id="tax" name="tax" step="0.01" min="0" value="{{bill.tax}}" />
+  </div>
+
+  <div>
+    <label for="tip">Tip:</label>
+    <input type="number" id="tip" name="tip" step="0.01" min="0" value="{{bill.tip}}" />
+  </div>
+
+  <div>
+    <label for="billPayer">Bill Payer (Username):</label>
+    <input type="text" id="billPayer" name="billPayer" value="{{bill.billPayer.username}}" required />
+  </div>
+
+  <div id="splitters">
+    <label>Splitters:</label>
+    {{#each bill.splitters}}
+    <div class="splitter">
+      <input type="text" name="splitters[{{@index}}][user]" value="{{this.username}}" placeholder="Username" required />
+      <div class="items">
+        <label>Items:</label>
+        {{#each this.items}}
+        <div class="item">
+          <input
+            type="text"
+            name="splitters[{{@../index}}][items][{{@index}}][name]"
+            value="{{this.name}}"
+            placeholder="Item Name (Optional)"
+          />
+          <input
+            type="number"
+            name="splitters[{{@../index}}][items][{{@index}}][cost]"
+            value="{{this.cost}}"
+            step="0.01"
+            min="0"
+            placeholder="Cost"
+            required
+          />
+          <button type="button" class="removeItem">Remove Item</button>
+        </div>
+        {{/each}}
+        <button type="button" class="addItem">Add Item</button>
+      </div>
+      <p>Total Items Cost: ${{this.itemsCost}}</p>
+      <p>Tax Share: ${{this.taxShare}}, Tip Share: ${{this.tipShare}}</p>
+      <p>Total Owed: ${{this.totalOwed}}</p>
+      <label>
+        <input type="checkbox" name="splitters[{{@index}}][paid]" value="true" {{#if this.paid}}checked{{/if}} /> Paid
+      </label>
+      <button type="button" class="removeSplitter">Remove Splitter</button>
+    </div>
+    {{/each}}
+    <button type="button" id="addSplitter">Add Splitter</button>
+  </div>
+
+  <div>
+    <label>
+      <input type="checkbox" name="complete" {{#if bill.complete}}checked{{/if}} /> Mark as Complete
+    </label>
+  </div>
+
+  <button type="submit">Update Bill</button>
+</form>
+
+<form action="/bills/delete/{{bill._id}}" method="POST" onsubmit="return confirm('Are you sure you want to delete this bill?');">
+  <button type="submit" class="delete-button">Delete Bill</button>
+</form>
+
+<script>
+  document.querySelectorAll('.removeSplitter').forEach((button) => {
+    button.addEventListener('click', (e) => {
+      e.target.parentElement.remove();
+    });
+  });
+
+  document.querySelectorAll('.addItem').forEach((button) => {
+    button.addEventListener('click', (e) => {
+      //const itemsDiv = e.target.previousElementSibling;
+      const itemsDiv = e.target.closest('.items');
+      const itemCount = itemsDiv.querySelectorAll('.item').length;
+      //const splitterIndex = e.target.closest('.splitter').dataset.index || 0;
+      //const splittersDiv = e.target.closest('#splitters');
+      const splitterIndex = parseInt(e.target.closest('.splitter').dataset.index, 10);
+      const newItem = document.createElement('div');
+      console.log("INDEXXXX: ", splitterIndex);
+      newItem.className = 'item';
+      newItem.innerHTML = `
+        <input
+          type="text"
+          name="splitters[${splitterIndex}][items][${itemCount}][name]"
+          placeholder="Item Name (Optional)"
+        />
+        <input
+          type="number"
+          name="splitters[${splitterIndex}][items][${itemCount}][cost]"
+          step="0.01"
+          min="0"
+          placeholder="Cost"
+          required
+        />
+      `;
+      itemsDiv.appendChild(newItem);
+
+      newItem.querySelector('.removeItem')?.addEventListener('click', (e) => {
+        e.target.parentElement.remove();
+      });
+    });
+  });
+
+  //let splitterCount = 1;
+  document.getElementById('addSplitter').addEventListener('click', () => {
+    console.log("ADDING SPLITTERERRRRRR");
+    const splittersDiv = document.getElementById('splitters');
+    // check if last element in splitters is a button (addSplitter)
+    const lastEleChild = splittersDiv.lastElementChild;
+    // index of the LAST splitter
+    let splitterIndex = 0;
+    if(lastEleChild.tagName.toLowerCase() === 'button'){
+      // meaning that it's first time adding a splitter, only 1 splitter ahead
+      // or splitterIndex = 0;
+      splitterIndex = parseInt(lastEleChild.previousElementSibling.dataset.index, 10);
+      console.log("FIRST SPLITTER");
+    } else{
+      splitterIndex = parseInt(lastEleChild.dataset.index, 10);
+      console.log("NOT FIRST SPLITTER");
+    }
+    const currIndex = splitterIndex + 1;
+    // show how many existing splitter in the splitters div already
+    //const splitterCount = splittersDiv.querySelectorAll('.splitter').length;
+    //const splittersDiv = e.target.closest('#splitters');
+    //splitterIndex = parseInt(e.target.closest('.splitter').dataset.index, 10);
+    const newSplitter = document.createElement('div');
+    newSplitter.className = 'splitter';
+    newSplitter.dataset.index = currIndex;
+    console.log("IS IT ADDEDDDDDDD?");
+    newSplitter.innerHTML = `
+      <input type="text" name="splitters[${currIndex}][user]" placeholder="Username" required />
+      <div class="items">
+        <label>Items:</label>
+        <div class="item">
+          <input
+            type="text"
+            name="splitters[${currIndex}][items][0][name]"
+            placeholder="Item Name (Optional)"
+          />
+          <input
+            type="number"
+            name="splitters[${currIndex}][items][0][cost]"
+            step="0.01"
+            min="0"
+            placeholder="Cost"
+            required
+          />
+        </div>
+        <button type="button" class="addItem">Add Item</button>
+      </div>
+      <label>
+        <input type="checkbox" name="splitters[${currIndex}][paid]" value="true" /> Paid
+      </label>
+      <button type="button" class="removeSplitter">Remove Splitter</button>
+    `;
+    splittersDiv.appendChild(newSplitter);
+    
+    newSplitter.querySelector('.addItem').addEventListener('click', (e) => {
+      console.log("LET ME ADDDDDD IT");
+      const itemsDiv = e.target.closest('.items');
+      const itemCount = itemsDiv.querySelectorAll('.item').length;
+      const splitterIndex = parseInt(e.target.closest('.splitter').dataset.index, 10);
+      const newItem = document.createElement('div');
+      newItem.className = 'item';
+      newItem.innerHTML = `
+        <input
+          type="text"
+          name="splitters[${splitterIndex}][items][${itemCount}][name]"
+          placeholder="Item Name (Optional)"
+        />
+        <input
+          type="number"
+          name="splitters[${splitterIndex}][items][${itemCount}][cost]"
+          step="0.01"
+          min="0"
+          placeholder="Cost"
+          required
+        />
+      `;
+      itemsDiv.appendChild(newItem);
+
+      newItem.querySelector('.removeItem')?.addEventListener('click', (e) => {
+        e.target.parentElement.remove();
+      });
+    });
+
+    newSplitter.querySelector('.removeSplitter').addEventListener('click', (e) => {
+      e.target.parentElement.remove();
+    });
+
+    //splitterCount++;
+  });
+</script>
